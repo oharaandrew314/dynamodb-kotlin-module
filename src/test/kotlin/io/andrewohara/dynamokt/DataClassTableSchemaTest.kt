@@ -8,11 +8,15 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import java.time.Instant
 
 class DataClassTableSchemaTest {
 
     private val backend = MockDynamoBackend()
+
+    val foo = DynamoDbClient.create()
+    val bar = DynamoDbEnhancedClient.create()
 
     private val mapper = DynamoDbEnhancedClient.builder()
         .dynamoDbClient(MockDynamoDbV2(backend))
