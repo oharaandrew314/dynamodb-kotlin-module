@@ -14,10 +14,9 @@ class DataClassTableSchema<Item: Any>(dataClass: KClass<Item>): TableSchema<Item
     private val metadata = DataClassTableMetadata(dataClass)
     private val type = EnhancedType.documentOf(dataClass.java, this)
     private val constructor = dataClass.primaryConstructor!!
-
     private val attributes = DataClassAttributes.create(dataClass)
 
-    override fun mapToItem(attributeMap: MutableMap<String, AttributeValue>): Item {
+    override fun mapToItem(attributeMap: Map<String, AttributeValue>): Item {
         val arguments = attributes
             .filterNot { attr -> attr.attributeName !in attributeMap && attr.optional } // omit missing values that are optional
             .mapNotNull { attr -> attributes[attr.attributeName]?.unConvert(attributeMap) }

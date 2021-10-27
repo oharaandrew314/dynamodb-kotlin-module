@@ -12,7 +12,10 @@ data class Cat(
     val nicknames: Set<String>? = null,
     @DynamoKtAttribute("fuzzy") val wuzzy: Boolean? = null,
     val notes: List<String>? = null,
-    val staff: List<Staff>? = null
+    val staff: List<Staff>? = null,
+    val owner: Staff? = null,
+    val attributes: Map<String, String>? = null,
+    @DynamoKtConverted(InstantAsLongAttributeConverter::class) val expires: Instant? = null
 ) {
     enum class Food { Sushi, Taco, Cheeseburger }
 

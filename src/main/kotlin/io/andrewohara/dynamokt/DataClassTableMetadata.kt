@@ -1,9 +1,6 @@
 package io.andrewohara.dynamokt
 
-import software.amazon.awssdk.enhanced.dynamodb.AttributeValueType
-import software.amazon.awssdk.enhanced.dynamodb.IndexMetadata
-import software.amazon.awssdk.enhanced.dynamodb.KeyAttributeMetadata
-import software.amazon.awssdk.enhanced.dynamodb.TableMetadata
+import software.amazon.awssdk.enhanced.dynamodb.*
 import software.amazon.awssdk.enhanced.dynamodb.internal.mapper.StaticIndexMetadata
 import software.amazon.awssdk.enhanced.dynamodb.internal.mapper.StaticKeyAttributeMetadata
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType
@@ -21,8 +18,9 @@ class DataClassTableMetadata<I: Any>(private val dataClass: KClass<I>): TableMet
     private val partitionKey = dataClass.declaredMemberProperties.find { it.hasAnnotation<DynamoKtPartitionKey>() }
     private val sortKey  = dataClass.declaredMemberProperties.find { it.hasAnnotation<DynamoKtSortKey>() }
     private val indexNames = dataClass.declaredMemberProperties
-        .filter { it.hasAnnotation<DynamoKtSecondaryPartitionKey>() }
-        .map { it.name }
+        .mapNotNull { it.findAnnotation<DynamoKtSecondaryPartitionKey>() }
+        .flatMap { it.indexNames.toList() }
+        .toSet()
 
     init {
         require(dataClass.isData)
@@ -39,17 +37,12 @@ class DataClassTableMetadata<I: Any>(private val dataClass: KClass<I>): TableMet
     }
 
     override fun indexKeys(indexName: String): Collection<String> {
-        return dataClass.declaredMemberProperties.filter { prop ->
-            prop.findAnnotation<DynamoKtSecondaryPartitionKey>()?.indexNames?.forEach {
-                if (it == indexName) return@filter true
-            }
+        val index = indices().find { it.name() == indexName } ?: return emptyList()
 
-
-            prop.findAnnotation<DynamoKtSecondarySortKey>()?.indexNames?.forEach {
-                if (it == indexName) return@filter true
-            }
-            false
-        }.map { it.name }
+        return listOfNotNull(
+            index.partitionKey().map { it.name() }.orElse(null),
+            index.sortKey().map { it.name() }.orElse(null)
+        )
     }
 
     override fun indices(): Collection<IndexMetadata> {
@@ -64,7 +57,7 @@ class DataClassTableMetadata<I: Any>(private val dataClass: KClass<I>): TableMet
         val secondaryIndices = indexNames.map { indexName ->
             StaticIndexMetadata.builder()
                 .name(indexName)
-                .partitionKey(indexPartitionProp(indexName)!!.keyAttributeMetadata())
+                .partitionKey(indexPartitionProp(indexName)?.keyAttributeMetadata())
                 .sortKey(indexSortProp(indexName)?.keyAttributeMetadata())
                 .build()
         }
@@ -84,11 +77,8 @@ class DataClassTableMetadata<I: Any>(private val dataClass: KClass<I>): TableMet
     }
 
     override fun scalarAttributeType(keyAttribute: String): Optional<ScalarAttributeType> {
-        val type = dataClass.declaredMemberProperties
-            .find { it.name == keyAttribute }
-            ?.scalarAttributeType()
-
-        return Optional.ofNullable(type)
+        val result = keyAttributes().find { it.name() == keyAttribute } ?: return Optional.empty()
+        return Optional.of(result.attributeValueType().scalarAttributeType())
     }
 
     // helpers
@@ -126,17 +116,18 @@ class DataClassTableMetadata<I: Any>(private val dataClass: KClass<I>): TableMet
         return StaticKeyAttributeMetadata.create(name, attrType)
     }
 
+    private val attributeConverterProvider = DefaultAttributeConverterProvider()
+
     private fun <T: Any> KProperty1<T, *>.scalarAttributeType(): ScalarAttributeType {
         findAnnotation<DynamoKtConverted>()
             ?.converter?.createInstance()
             ?.attributeValueType()?.scalarAttributeType()
             ?.also { return it }
 
-        return when(returnType) {
-            String::class.createType() -> ScalarAttributeType.S
-            Number::class.createType() -> ScalarAttributeType.N
-            ByteArray::class.createType() -> ScalarAttributeType.B
-            else -> throw IllegalArgumentException("Unsupported key type: $returnType")
-        }
+        val type = returnType.classifier as KClass<*>
+        val enhancedType = EnhancedType.of(type.java)
+
+        return attributeConverterProvider.converterFor(enhancedType)
+            .attributeValueType().scalarAttributeType()
     }
 }
