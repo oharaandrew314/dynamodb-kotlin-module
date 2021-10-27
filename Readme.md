@@ -14,6 +14,12 @@ This module provides a new `TableSchema` implementation that adds support for ko
 - properties don't need default values
 - new annotations work directly on kotlin properties, rather than their getters
 
+## Install
+
+[![](https://jitpack.io/v/oharaandrew314/dynamodb-kotlin-module.svg)](https://jitpack.io/#oharaandrew314/dynamodb-kotlin-module)
+
+Follow the instructions on Jitpack.
+
 ## Quickstart
 
 ```kotlin
