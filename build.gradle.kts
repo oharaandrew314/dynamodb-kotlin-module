@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm") version "1.5.30"
+    id("jacoco")
+    id("maven-publish")
 }
 
 repositories {
@@ -24,4 +26,24 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/reports.xml"))
+    }
+}
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["kotlin"])
+        }
+    }
 }

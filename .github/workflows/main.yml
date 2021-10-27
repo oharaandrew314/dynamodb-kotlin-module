@@ -1,0 +1,48 @@
+name: Test all supported JDKs on all systems
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: adopt
+
+      - name: Build Coverage
+        run: sh ./gradlew check jacocoTestReport
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java_version: [8, 9, 10, 11, 12, 13]
+        os: [windows-latest, macOS-latest, ubuntu-latest]
+        distribution: [ adopt ]
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v1
+
+      - name: Set up ${{ matrix.distribution }} JDK ${{ matrix.java_version }} on ${{ matrix.os }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java_version }}
+          distribution: ${{ matrix.distribution }}
+
+      - name: Test
+        run: sh ./gradlew check
