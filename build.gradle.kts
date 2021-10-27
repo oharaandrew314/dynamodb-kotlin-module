@@ -32,7 +32,7 @@ tasks.test {
 tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/reports.xml"))
+        html.required.set(true)
     }
 }
 
