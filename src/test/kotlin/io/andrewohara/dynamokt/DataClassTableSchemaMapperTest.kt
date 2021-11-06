@@ -352,4 +352,33 @@ class DataClassTableSchemaMapperTest {
 
         mapper.getItem(expected.key()) shouldBe expected
     }
+
+    @Test
+    fun `put item with built-in converter`() {
+        val time = Instant.parse("2021-01-01T12:00:00Z")
+        mapper.putItem(Cat("Toggles", expiresFriendly = time))
+
+        table.items.shouldContainExactly(
+            MockDynamoItem(
+                "name" to MockDynamoValue("Toggles"),
+                "lives" to MockDynamoValue(9),
+                "expiresFriendly" to MockDynamoValue(s = time.toString())
+            )
+        )
+    }
+
+    @Test
+    fun `get item with built-in converter`() {
+        val time = Instant.parse("2021-01-01T12:00:00Z")
+
+        table.save(
+            MockDynamoItem(
+            "name" to MockDynamoValue("Toggles"),
+            "expiresFriendly" to MockDynamoValue(s = time.toString())
+        ))
+
+        val expected = Cat("Toggles", expiresFriendly = time)
+
+        mapper.getItem(expected.key()) shouldBe expected
+    }
 }

@@ -23,14 +23,21 @@ Follow the instructions on Jitpack.
 ## Quickstart
 
 ```kotlin
+// create a data class model, making sure to give it a partition key
 data class Cat(
     @DynamoKtPartitionKey val name: String,
     val lives: Int = 9,
 )
 
+// use the new table schema provided by this module to init the table mapper
 val tableSchema = DataClassTableSchema(Cat::class)
-val mapper = DynamoDbEnhancedClient.create().table("cats", tableScema)
+val cats = DynamoDbEnhancedClient.create().table("cats", tableScema)
 
-mapper.createTable()
-mapper.putItem(Cat("Toggles"))
+// use the table mapper however you want!!
+cats.createTable()
+cats.putItem(Cat("Toggles"))
 ```
+
+## Annotations
+
+TODO

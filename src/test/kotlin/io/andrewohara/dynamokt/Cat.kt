@@ -1,6 +1,7 @@
 package io.andrewohara.dynamokt
 
 import software.amazon.awssdk.enhanced.dynamodb.Key
+import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.InstantAsStringAttributeConverter
 import java.time.Instant
 
 data class Cat(
@@ -15,7 +16,8 @@ data class Cat(
     val staff: List<Staff>? = null,
     val owner: Staff? = null,
     val attributes: Map<String, String>? = null,
-    @DynamoKtConverted(InstantAsLongAttributeConverter::class) val expires: Instant? = null
+    @DynamoKtConverted(InstantAsLongAttributeConverter::class) val expires: Instant? = null,
+    @DynamoKtConverted(InstantAsStringAttributeConverter::class) val expiresFriendly: Instant? = null
 ) {
     enum class Food { Sushi, Taco, Cheeseburger }
 
