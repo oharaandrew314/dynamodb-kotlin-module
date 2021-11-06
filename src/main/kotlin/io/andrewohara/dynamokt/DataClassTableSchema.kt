@@ -2,6 +2,8 @@ package io.andrewohara.dynamokt
 
 import software.amazon.awssdk.enhanced.dynamodb.EnhancedType
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema
+import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttribute
+import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticTableSchema
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import kotlin.reflect.KClass
 import kotlin.reflect.full.*
@@ -50,4 +52,15 @@ class DataClassTableSchema<Item: Any>(dataClass: KClass<Item>): TableSchema<Item
     override fun isAbstract() = false
 }
 
-
+//object DS {
+//    inline operator fun <reified Item> invoke(): TableSchema<Item> {
+//
+//        StaticAttribute.builder(Item::class.java, )
+//
+//
+//
+//        return StaticTableSchema.builder(Item::class.java)
+//            .attributes()
+//            .build()
+//    }
+//}

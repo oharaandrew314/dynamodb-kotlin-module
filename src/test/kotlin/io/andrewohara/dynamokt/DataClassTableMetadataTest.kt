@@ -18,10 +18,11 @@ class DataClassTableMetadataTest {
 
     data class Person(
         @DynamoKtPartitionKey val id: Int,
-        @DynamoKtSecondaryPartitionKey(["search"]) val name: String,
+        @DynamoKtSecondaryPartitionKey(["search", "names"]) val name: String,
         @DynamoKtSecondarySortKey(["search"]) val dob: Instant
     )
 
+//    private val metadata = DataClassTableMetadata(Person::class)
     private val metadata = DataClassTableMetadata(Person::class)
 
     @Test
@@ -53,7 +54,14 @@ class DataClassTableMetadataTest {
 
     @Test
     fun `sort key of missing index`() {
-        metadata.indexSortKey("foo") shouldBe Optional.empty()
+        shouldThrow<IllegalArgumentException> {
+            metadata.indexSortKey("foo") shouldBe Optional.empty()
+        }
+    }
+
+    @Test
+    fun `sort key of index without sort key`() {
+        metadata.indexSortKey("names") shouldBe Optional.empty()
     }
 
     @Test
@@ -68,7 +76,9 @@ class DataClassTableMetadataTest {
 
     @Test
     fun `index keys of missing index`() {
-        metadata.indexKeys("foo").shouldBeEmpty()
+        shouldThrow<IllegalArgumentException> {
+            metadata.indexKeys("foo").shouldBeEmpty()
+        }
     }
 
     @Test
@@ -82,6 +92,10 @@ class DataClassTableMetadataTest {
                 .name("search")
                 .partitionKey(StaticKeyAttributeMetadata.create("name", AttributeValueType.S))
                 .sortKey(StaticKeyAttributeMetadata.create("dob", AttributeValueType.S))
+                .build(),
+            StaticIndexMetadata.builder()
+                .name("names")
+                .partitionKey(StaticKeyAttributeMetadata.create("name", AttributeValueType.S))
                 .build()
         )
     }
@@ -119,6 +133,8 @@ class DataClassTableMetadataTest {
 
     @Test
     fun `scalar attribute type of missing`() {
-        metadata.scalarAttributeType("missing") shouldBe Optional.empty()
+        shouldThrow<IllegalArgumentException> {
+            metadata.scalarAttributeType("missing") shouldBe Optional.empty()
+        }
     }
 }
