@@ -8,7 +8,6 @@ data class Cat(
     @DynamoKtPartitionKey val name: String,
     val lives: Int = 9,
     val birthDate: Instant? = null,
-//    @DynamoKtConverted(EnumAttributeConverter<Food>::class.java)
     val favouriteFood: Food? = null,
     val nicknames: Set<String>? = null,
     @DynamoKtAttribute("fuzzy") val wuzzy: Boolean? = null,

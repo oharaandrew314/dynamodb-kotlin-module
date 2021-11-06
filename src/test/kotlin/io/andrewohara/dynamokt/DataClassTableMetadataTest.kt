@@ -22,7 +22,6 @@ class DataClassTableMetadataTest {
         @DynamoKtSecondarySortKey(["search"]) val dob: Instant
     )
 
-//    private val metadata = DataClassTableMetadata(Person::class)
     private val metadata = DataClassTableMetadata(Person::class)
 
     @Test
