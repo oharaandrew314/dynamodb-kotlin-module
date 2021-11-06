@@ -33,13 +33,33 @@ class DataClassTableSchemaTest {
     }
 
     @Test
-    fun `item to map`() {
-        val instance = TestItem("troll", 9001, ByteBuffer.wrap("lolcats".toByteArray()))
+    fun `item to map - don't ignore nulls`() {
+        val instance = TestItem("troll", 9001)
 
-        schema.itemToMap(instance, false) shouldBe mapOf(
+        schema.itemToMap(instance, ignoreNulls = false) shouldBe mapOf(
             "foo" to AttributeValue.builder().s("troll").build(),
             "bar" to AttributeValue.builder().n("9001").build(),
-            "baz" to AttributeValue.builder().b(SdkBytes.fromByteArray("lolcats".toByteArray())).build()
+            "baz" to AttributeValue.builder().nul(true).build()
+        )
+    }
+
+    @Test
+    fun `item to map - ignore nulls`() {
+        val instance = TestItem("troll", 9001)
+
+        schema.itemToMap(instance, ignoreNulls = true) shouldBe mapOf(
+            "foo" to AttributeValue.builder().s("troll").build(),
+            "bar" to AttributeValue.builder().n("9001").build(),
+        )
+    }
+
+    @Test
+    fun `item to map - specific attributes`() {
+        val instance = TestItem("troll", 9001, ByteBuffer.wrap("lolcats".toByteArray()))
+
+        schema.itemToMap(instance, setOf("foo", "bar")) shouldBe mapOf(
+            "foo" to AttributeValue.builder().s("troll").build(),
+            "bar" to AttributeValue.builder().n("9001").build(),
         )
     }
 
@@ -53,4 +73,7 @@ class DataClassTableSchemaTest {
 
         schema.mapToItem(map) shouldBe TestItem("troll", 9001, ByteBuffer.wrap("lolcats".toByteArray()))
     }
+
+    @Test
+    fun `is abstract`() = schema.isAbstract shouldBe false
 }

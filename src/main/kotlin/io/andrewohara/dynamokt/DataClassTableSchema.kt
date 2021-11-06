@@ -51,16 +51,3 @@ class DataClassTableSchema<Item: Any>(dataClass: KClass<Item>): TableSchema<Item
 
     override fun isAbstract() = false
 }
-
-//object DS {
-//    inline operator fun <reified Item> invoke(): TableSchema<Item> {
-//
-//        StaticAttribute.builder(Item::class.java, )
-//
-//
-//
-//        return StaticTableSchema.builder(Item::class.java)
-//            .attributes()
-//            .build()
-//    }
-//}

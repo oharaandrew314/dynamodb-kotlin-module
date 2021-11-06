@@ -3,7 +3,6 @@ package io.andrewohara.dynamokt
 import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter
 import software.amazon.awssdk.enhanced.dynamodb.AttributeConverterProvider
 import software.amazon.awssdk.enhanced.dynamodb.EnhancedType
-import java.lang.IllegalArgumentException
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.KVisibility
@@ -30,13 +29,11 @@ class DataClassAttributes<Item>(
             clazz.constructors.firstOrNull { it.visibility == KVisibility.PUBLIC }
                 ?.let { return it.call() }
 
-            clazz.staticFunctions
+            return clazz.staticFunctions
                 .filter { it.name == "create" }
                 .filter { it.visibility == KVisibility.PUBLIC }
-                .firstOrNull { it.parameters.isEmpty() }
-                ?.let { return it.call() as AttributeConverter<Any> }
-
-            throw IllegalArgumentException("Cannot instantiate ${clazz.simpleName}")
+                .first { it.parameters.isEmpty() }
+                .call() as AttributeConverter<Any>
         }
 
         fun <Item: Any> create(type: KClass<Item>): DataClassAttributes<Item> {
