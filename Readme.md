@@ -1,4 +1,3 @@
-![Test](https://github.com/oharaandrew314/dynamodb-kotlin-module/workflows/Test/badge.svg)
 [![codecov](https://codecov.io/gh/oharaandrew314/dynamodb-kotlin-module/branch/master/graph/badge.svg)](https://codecov.io/gh/oharaandrew314/dynamodb-kotlin-module)
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 
