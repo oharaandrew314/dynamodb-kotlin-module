@@ -16,10 +16,10 @@ class DataClassTableSchema<Item: Any>(dataClass: KClass<Item>): TableSchema<Item
     private val metadata = DataClassTableMetadata(dataClass)
     private val type = EnhancedType.documentOf(dataClass.java, this)
     private val constructor = dataClass.primaryConstructor!!
-    private val attributes = DataClassAttributes.create(dataClass)
+    private val attributes = DataClassAttribute.create(dataClass).associateBy { it.attributeName }
 
     override fun mapToItem(attributeMap: Map<String, AttributeValue>): Item {
-        val arguments = attributes
+        val arguments = attributes.values
             .filterNot { attr -> attr.attributeName !in attributeMap && attr.optional } // omit missing values that are optional
             .mapNotNull { attr -> attributes[attr.attributeName]?.unConvert(attributeMap) }
             .toMap()
@@ -28,13 +28,13 @@ class DataClassTableSchema<Item: Any>(dataClass: KClass<Item>): TableSchema<Item
     }
 
     override fun itemToMap(item: Item, ignoreNulls: Boolean): Map<String, AttributeValue> {
-        return attributes
+        return attributes.values
             .associate { attr -> attr.convert(item) }
             .filterValues { it.nul() != true || !ignoreNulls }
     }
 
     override fun itemToMap(item: Item, attributes: Collection<String>): Map<String, AttributeValue> {
-        return this.attributes
+        return this.attributes.values
             .filter { it.attributeName in attributes }
             .associate { attr -> attr.convert(item) }
     }
@@ -47,7 +47,7 @@ class DataClassTableSchema<Item: Any>(dataClass: KClass<Item>): TableSchema<Item
 
     override fun itemType(): EnhancedType<Item> = type
 
-    override fun attributeNames() = attributes.map { it.attributeName }
+    override fun attributeNames() = attributes.keys.toList()
 
     override fun isAbstract() = false
 }

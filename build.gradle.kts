@@ -14,10 +14,9 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
 
-    implementation(platform("software.amazon.awssdk:bom:2.17.34+"))
-    api("software.amazon.awssdk:dynamodb-enhanced")
+    api("software.amazon.awssdk:dynamodb-enhanced:2.17.34+")
 
-    testImplementation("com.github.oharaandrew314:mock-aws-java-sdk:1.0.0-alpha.2")
+    testImplementation("com.github.oharaandrew314:mock-aws-java-sdk:1.0.0-beta.2")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-params")

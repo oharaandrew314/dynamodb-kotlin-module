@@ -39,4 +39,21 @@ cats.putItem(Cat("Toggles"))
 
 ## Annotations
 
-TODO
+The kotlin data class table schema uses a new set of kotlin-friendly [annotations](/src/main/kotlin/io/andrewohara/dynamokt/dataClassAnnotations.kt).
+
+- The only mandatory annotation is `@DynamoKtPartitionKey`
+- `@DynamkKtConverted` can set a custom attribute converter for a property
+
+
+## Gotchas
+
+There is a [cut feature](https://github.com/aws/aws-sdk-java-v2/issues/1771) in the v2 enhanced sdk;
+the plain `createTable` method will ignore indices defined in the `TableSchema`, creating a table with no indices.
+If your tests rely on the order of items queried from indices, this is a problem.
+
+You can work around this by providing your own `CreateTableEnhancedRequest` to the method,
+or by calling the `createTableWithIndices` extension method from this module instead.
+
+## Samples
+
+See the [Samples](/src/test/kotlin/io/andrewohara/dynamokt/samples)
