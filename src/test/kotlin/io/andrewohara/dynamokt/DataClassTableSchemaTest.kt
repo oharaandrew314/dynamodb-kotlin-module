@@ -76,4 +76,16 @@ class DataClassTableSchemaTest {
 
     @Test
     fun `is abstract`() = schema.isAbstract shouldBe false
+
+    @Test
+    fun `map to item - missing entry for nullable field`() {
+        data class Foo(val name: String, val age: Int?)
+        val schema = DataClassTableSchema(Foo::class)
+
+        val map = mapOf(
+            "name" to AttributeValue.builder().s("Toggles").build()
+        )
+
+        schema.mapToItem(map) shouldBe Foo("Toggles", null)
+    }
 }

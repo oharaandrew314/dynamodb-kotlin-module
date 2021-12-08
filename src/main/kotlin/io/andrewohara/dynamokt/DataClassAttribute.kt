@@ -18,8 +18,6 @@ class DataClassAttribute<Item, Attribute>(
     private val converter: AttributeConverter<Attribute>,
     private val constructorParam: KParameter
 ) {
-    val optional = !constructorParam.isOptional
-
     fun convert(item: Item): Pair<String, AttributeValue> {
         val value = prop.get(item)
             ?.let { converter.transformFrom(it) }
@@ -28,8 +26,11 @@ class DataClassAttribute<Item, Attribute>(
         return attributeName to value
     }
 
-    fun unConvert(attrs: Map<String, AttributeValue>): Pair<KParameter, Attribute>? {
-        val value = attrs[attributeName] ?: return null
+    fun unConvert(attrs: Map<String, AttributeValue>): Pair<KParameter, Attribute?>? {
+        val value = attrs[attributeName] ?: let {
+            return if (constructorParam.isOptional) null else constructorParam to null
+        }
+
         return constructorParam to converter.transformTo(value)
     }
 

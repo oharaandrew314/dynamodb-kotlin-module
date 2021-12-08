@@ -2,8 +2,6 @@ package io.andrewohara.dynamokt
 
 import software.amazon.awssdk.enhanced.dynamodb.EnhancedType
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema
-import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttribute
-import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticTableSchema
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import kotlin.reflect.KClass
 import kotlin.reflect.full.*
@@ -20,7 +18,6 @@ class DataClassTableSchema<Item: Any>(dataClass: KClass<Item>): TableSchema<Item
 
     override fun mapToItem(attributeMap: Map<String, AttributeValue>): Item {
         val arguments = attributes.values
-            .filterNot { attr -> attr.attributeName !in attributeMap && attr.optional } // omit missing values that are optional
             .mapNotNull { attr -> attributes[attr.attributeName]?.unConvert(attributeMap) }
             .toMap()
 
