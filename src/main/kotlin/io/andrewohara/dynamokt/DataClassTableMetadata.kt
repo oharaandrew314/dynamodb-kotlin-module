@@ -23,22 +23,28 @@ object DataClassTableMetadata {
     operator fun invoke(dataClass: KClass<out Any>): TableMetadata {
         require(dataClass.isData)
 
+        val propNames = dataClass.declaredMemberProperties.associateWith { prop ->
+            prop.findAnnotation<DynamoKtAttribute>()?.name ?: prop.name
+        }
+
         return StaticTableMetadata.builder().apply {
             for (prop in dataClass.declaredMemberProperties) {
                 val type by lazy { prop.attributeType() }
 
+                val propName = propNames[prop] ?: prop.name
+
                 for (annotation in prop.annotations) {
                     when(annotation) {
-                        is DynamoKtPartitionKey -> addIndexPartitionKey(TableMetadata.primaryIndexName(), prop.name, type)
-                        is DynamoKtSortKey -> addIndexSortKey(TableMetadata.primaryIndexName(), prop.name, type)
+                        is DynamoKtPartitionKey -> addIndexPartitionKey(TableMetadata.primaryIndexName(), propName, type)
+                        is DynamoKtSortKey -> addIndexSortKey(TableMetadata.primaryIndexName(), propName, type)
                         is DynamoKtSecondaryPartitionKey -> {
                             for (indexName in annotation.indexNames) {
-                                addIndexPartitionKey(indexName, prop.name, type)
+                                addIndexPartitionKey(indexName, propName, type)
                             }
                         }
                         is DynamoKtSecondarySortKey -> {
                             for (indexName in annotation.indexNames) {
-                                addIndexSortKey(indexName, prop.name, type)
+                                addIndexSortKey(indexName, propName, type)
                             }
                         }
                     }

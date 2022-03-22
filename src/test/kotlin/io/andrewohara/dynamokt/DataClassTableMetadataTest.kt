@@ -22,11 +22,31 @@ class DataClassTableMetadataTest {
         @DynamoKtSecondarySortKey(["search"]) val dob: Instant
     )
 
+    data class Cat(
+        @DynamoKtPartitionKey
+        @DynamoKtAttribute(name = "Id")
+        val id: String,
+
+        @DynamoKtSortKey
+        @DynamoKtAttribute(name = "BirthDate")
+        val dob: Instant,
+    )
+
     private val metadata = DataClassTableMetadata(Person::class)
 
     @Test
     fun `partition key of primary index`() {
         metadata.indexPartitionKey(TableMetadata.primaryIndexName()) shouldBe "id"
+    }
+
+    @Test
+    fun `partition key of primary index with renamed attribute`() {
+        DataClassTableMetadata(Cat::class).indexPartitionKey(TableMetadata.primaryIndexName()) shouldBe "Id"
+    }
+
+    @Test
+    fun `sort key of primary index with renamed attribute`() {
+        DataClassTableMetadata(Cat::class).indexSortKey(TableMetadata.primaryIndexName()) shouldBe Optional.of("BirthDate")
     }
 
     @Test

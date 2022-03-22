@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.6.10"
     id("jacoco")
     id("maven-publish")
 }
@@ -16,11 +16,11 @@ dependencies {
 
     api("software.amazon.awssdk:dynamodb-enhanced:2.17.34+")
 
-    testImplementation("com.github.oharaandrew314:mock-aws-java-sdk:1.0.0-beta.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
+    testImplementation("com.github.oharaandrew314:mock-aws-java-sdk:1.0.0-beta.4")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.3")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.1.0")
 }
 
 tasks.test {
