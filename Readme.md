@@ -39,10 +39,29 @@ cats.putItem(Cat("Toggles"))
 
 ## Annotations
 
-The kotlin data class table schema uses a new set of kotlin-friendly [annotations](/src/main/kotlin/io/andrewohara/dynamokt/dataClassAnnotations.kt).
+The schema uses a new set of property-friendly annotations.
 
-- The only mandatory annotation is `@DynamoKtPartitionKey`
-- `@DynamkKtConverted` can set a custom attribute converter for a property
+```kotlin
+data class Appointment(
+    @DynamoKtPartitionKey  // partition key for main index
+    @DynamoKtAttribute(name = "owner_id")  // optionally rename the attribute
+    val ownerId: UUID,
+    
+    @DynamoKtSortKey  // sort key for main index
+    val id: UUID,
+    
+    @DynamoKtSecondaryPartitionKey(indexNames = ["names"])  // partition key for secondary indices
+    @DynamoKtAttribute(name = "name_last")
+    val lastName: String,
+    
+    @DynamoKtSecondarySortKey(indexNames = ["names"])  // sort key for secondary indices
+    @DynamoKtAttribute(name = "name_first")
+    val firstName: String,
+    
+    @DynamoKtConverted(InstantAsLongAttributeConverter::class)  // override the attribute converter
+    val expires: Instant?
+)
+```
 
 
 ## Gotchas
