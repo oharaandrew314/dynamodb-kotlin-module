@@ -10,7 +10,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
 
-class CreatTableTest {
+class CreateTableTest {
 
     private data class Person(
         @DynamoKtPartitionKey val id: Int,
