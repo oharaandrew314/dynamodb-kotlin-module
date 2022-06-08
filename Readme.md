@@ -51,11 +51,9 @@ data class Appointment(
     val id: UUID,
     
     @DynamoKtSecondaryPartitionKey(indexNames = ["names"])  // partition key for secondary indices
-    @DynamoKtAttribute
     val lastName: String,
     
     @DynamoKtSecondarySortKey(indexNames = ["names"])  // sort key for secondary indices
-    @DynamoKtAttribute
     val firstName: String,
     
     @DynamoKtConverted(InstantAsLongAttributeConverter::class)  // override the attribute converter
