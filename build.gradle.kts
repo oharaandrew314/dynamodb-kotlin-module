@@ -17,10 +17,10 @@ dependencies {
     api("software.amazon.awssdk:dynamodb-enhanced:2.17.34+")
 
     testImplementation("com.github.oharaandrew314:mock-aws-java-sdk:1.0.0-beta.4")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.1.0")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.4.2")
 }
 
 tasks.test {
