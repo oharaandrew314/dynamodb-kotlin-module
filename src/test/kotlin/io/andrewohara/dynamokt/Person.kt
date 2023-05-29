@@ -1,4 +1,9 @@
 package io.andrewohara.dynamokt
 
-class Person {
+import java.util.UUID
+
+data class Person(
+    val id: UUID
+) {
+    val name: String? = null
 }

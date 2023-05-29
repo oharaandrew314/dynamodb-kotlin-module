@@ -9,11 +9,11 @@ import kotlin.reflect.full.*
 class DataClassTableSchema<Item: Any>(dataClass: KClass<Item>): TableSchema<Item> {
 
     init {
-        require(dataClass.isData)
+        require(dataClass.isData) { "$dataClass must be a data class" }
     }
     private val metadata = DataClassTableMetadata(dataClass)
     private val type = EnhancedType.documentOf(dataClass.java, this)
-    private val constructor = dataClass.primaryConstructor!!
+    private val constructor = requireNotNull(dataClass.primaryConstructor) { "$dataClass must have a primary constructor"}
     private val attributes = DataClassAttribute.create(dataClass).associateBy { it.attributeName }
 
     override fun mapToItem(attributeMap: Map<String, AttributeValue>): Item {

@@ -1,10 +1,12 @@
 package io.andrewohara.dynamokt
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
+import java.lang.IllegalArgumentException
 import java.nio.ByteBuffer
 
 class DataClassTableSchemaTest {
@@ -75,7 +77,9 @@ class DataClassTableSchemaTest {
     }
 
     @Test
-    fun `is abstract`() = schema.isAbstract shouldBe false
+    fun `is abstract`() {
+        schema.isAbstract shouldBe false
+    }
 
     @Test
     fun `map to item - missing entry for nullable field`() {
@@ -87,5 +91,12 @@ class DataClassTableSchemaTest {
         )
 
         schema.mapToItem(map) shouldBe Foo("Toggles", null)
+    }
+
+    @Test
+    fun `construct schema for invalid data class - non-constructor properties`() {
+        shouldThrow<IllegalArgumentException> {
+            DataClassTableSchema(Person::class)
+        }
     }
 }

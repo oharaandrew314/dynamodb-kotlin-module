@@ -21,8 +21,6 @@ object DataClassTableMetadata {
     }
 
     operator fun invoke(dataClass: KClass<out Any>): TableMetadata {
-        require(dataClass.isData)
-
         val propNames = dataClass.declaredMemberProperties.associateWith { prop ->
             prop.findAnnotation<DynamoKtAttribute>()?.name ?: prop.name
         }

@@ -51,6 +51,7 @@ class DataClassAttribute<Item, Attribute>(
         fun <Item: Any> create(type: KClass<Item>): Collection<DataClassAttribute<Item, Any?>> {
             val props = type.declaredMemberProperties.sortedBy { it.name }
             val params = type.primaryConstructor!!.parameters.sortedBy { it.name }
+            require(props.size == params.size) { "$type properties MUST all be declared in the constructor" }
 
             val attributes = props.zip(params).map { (prop, param) ->
                 val converter = prop.findAnnotation<DynamoKtConverted>()
