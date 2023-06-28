@@ -42,6 +42,7 @@ private val defaultProjectionBuilder = { _: IndexMetadata ->
     Projection.builder().projectionType(ProjectionType.ALL).build()
 }
 
+@Deprecated(message = "This is no longer needed as of the aws-sdk 2.20.86", replaceWith = ReplaceWith("createTable"))
 fun <T: Any> DynamoDbTable<T>.createTableWithIndices(
     createProjection: (IndexMetadata) -> Projection = defaultProjectionBuilder
 ) {
@@ -49,6 +50,7 @@ fun <T: Any> DynamoDbTable<T>.createTableWithIndices(
     return createTable(request)
 }
 
+@Deprecated(message = "This is no longer needed as of the aws-sdk 2.20.86", replaceWith = ReplaceWith("createTable"))
 fun <T: Any> DynamoDbAsyncTable<T>.createTableWithIndices(
     createProjection: (IndexMetadata) -> Projection = defaultProjectionBuilder
 ): CompletableFuture<Void> {

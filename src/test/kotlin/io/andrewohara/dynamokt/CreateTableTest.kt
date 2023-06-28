@@ -9,12 +9,14 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
+import java.time.Instant
 
 class CreateTableTest {
 
     private data class Person(
         @DynamoKtPartitionKey val id: Int,
-        @DynamoKtSecondaryPartitionKey(indexNames = ["names"]) val name: String
+        @DynamoKtSecondaryPartitionKey(indexNames = ["names"]) val name: String,
+        @DynamoKtSecondarySortKey(indexNames = ["names"]) val dob: Instant
     )
 
     private val backend = MockDynamoBackend()
@@ -24,21 +26,31 @@ class CreateTableTest {
         .table("people", DataClassTableSchema(Person::class))
 
     @Test
-    fun `original createTable will lose indices`() {
-        personTable.createTable()
-
-        val backendTable = backend.getTable("people").shouldNotBeNull()
-        backendTable.globalIndices.shouldBeEmpty()
-        backendTable.localIndices.shouldBeEmpty()
-    }
-
-    @Test
-    fun `createTableWithIndices with indices will have indices intact`() {
+    fun createTableWithIndices() {
         personTable.createTableWithIndices()
 
         val backendTable = backend.getTable("people").shouldNotBeNull()
         backendTable.globalIndices.shouldContainExactly(
-            MockDynamoSchema("names", hashKey = MockDynamoAttribute(MockDynamoAttribute.Type.String, "name"), rangeKey = null)
+            MockDynamoSchema(
+                "names",
+                hashKey = MockDynamoAttribute(MockDynamoAttribute.Type.String, "name"),
+                rangeKey = MockDynamoAttribute(MockDynamoAttribute.Type.String, "dob")
+            )
+        )
+        backendTable.localIndices.shouldBeEmpty()
+    }
+
+    @Test
+    fun createTable() {
+        personTable.createTable()
+
+        val backendTable = backend.getTable("people").shouldNotBeNull()
+        backendTable.globalIndices.shouldContainExactly(
+            MockDynamoSchema(
+                "names",
+                hashKey = MockDynamoAttribute(MockDynamoAttribute.Type.String, "name"),
+                rangeKey = MockDynamoAttribute(MockDynamoAttribute.Type.String, "dob")
+            )
         )
         backendTable.localIndices.shouldBeEmpty()
     }

@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.enhanced.dynamodb.AttributeValueType
+import software.amazon.awssdk.enhanced.dynamodb.KeyAttributeMetadata
 import software.amazon.awssdk.enhanced.dynamodb.TableMetadata
 import software.amazon.awssdk.enhanced.dynamodb.internal.mapper.StaticIndexMetadata
 import software.amazon.awssdk.enhanced.dynamodb.internal.mapper.StaticKeyAttributeMetadata
@@ -121,8 +122,10 @@ class DataClassTableMetadataTest {
 
     @Test
     fun `all keys`() {
-        metadata.allKeys().shouldContainExactlyInAnyOrder(
-            "id", "name", "dob"
+        metadata.keyAttributes().shouldContainExactlyInAnyOrder(
+            StaticKeyAttributeMetadata.create("id", AttributeValueType.N),
+            StaticKeyAttributeMetadata.create("name", AttributeValueType.S),
+            StaticKeyAttributeMetadata.create("dob", AttributeValueType.S)
         )
     }
 

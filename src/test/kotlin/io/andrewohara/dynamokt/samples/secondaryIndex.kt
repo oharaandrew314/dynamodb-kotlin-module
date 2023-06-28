@@ -30,7 +30,7 @@ class SecondaryIndexSample {
 
     @BeforeEach
     fun seed() {
-        table.createTableWithIndices()
+        table.createTable()
         table.putItem(PersonById(1, "John", Instant.ofEpochSecond(9001)))
         table.putItem(PersonById(2, "Jane", Instant.ofEpochSecond(1337)))
         table.putItem(PersonById(3, "John", Instant.ofEpochSecond(4242)))

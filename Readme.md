@@ -61,27 +61,6 @@ data class Appointment(
 )
 ```
 
-## Enhanced Table Creator
-
-The `DynamoDbTable.createTable()` method provided in the V2 SDK ignores all the indices defined by your annotations,
-which can result in some ["surprising behaviour"](https://github.com/aws/aws-sdk-java-v2/issues/1771#issuecomment-1206701986).
-
-With this plugin, you can now use the `DynamoDbTable.createTableWithIndices()` extension method;
-using reasonable defaults to fill whatever gaps exist in the table metadata.
-
-```kotlin
-data class Person(
-    @DynamoKtPartitionKey val id: Int,
-    @DynamoKtSecondaryPartitionKey(indexNames = ["names"]) val name: String,
-    val dob: Instant
-)
-
-val schema = DataClassTableSchema(Person::class)
-val table = DynamoDbEnhancedClient.create().table("people", schema)
-
-table.createTableWithIndices()
-```
-
 ## Samples
 
 See the [Samples](/src/test/kotlin/io/andrewohara/dynamokt/samples)
