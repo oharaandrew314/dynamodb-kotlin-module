@@ -19,6 +19,10 @@ This module provides a new `TableSchema` implementation that adds support for ko
 
 Follow the instructions on Jitpack.
 
+## Requirements
+
+Minimum Java 8.  However, only 11 and 17 are officially supported.
+
 ## Quickstart
 
 ```kotlin

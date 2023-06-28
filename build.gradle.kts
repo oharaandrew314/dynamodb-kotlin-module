@@ -10,6 +10,10 @@ repositories {
     maven { url = uri("https://jitpack.io") }
 }
 
+kotlin {
+    jvmToolchain(8)
+}
+
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
