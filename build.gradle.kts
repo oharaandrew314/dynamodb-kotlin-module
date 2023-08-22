@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.8.22"
+    kotlin("jvm") version "1.9.0"
     id("jacoco")
     id("maven-publish")
 }
@@ -20,9 +20,10 @@ dependencies {
 
     api("software.amazon.awssdk:dynamodb-enhanced:2.20.86+")
 
-    testImplementation("com.github.oharaandrew314:mock-aws-java-sdk:1.2.0")
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.6.2")
+    testImplementation("org.http4k:http4k-aws:5.7.2.0")
+    testImplementation("org.http4k:http4k-connect-amazon-dynamodb-fake:5.1.5.0")
 }
 
 tasks.test {

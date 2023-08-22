@@ -1,14 +1,24 @@
 package io.andrewohara.dynamokt
 
-import io.andrewohara.awsmock.dynamodb.MockDynamoDbV2
-import io.andrewohara.awsmock.dynamodb.backend.MockDynamoAttribute
-import io.andrewohara.awsmock.dynamodb.backend.MockDynamoBackend
-import io.andrewohara.awsmock.dynamodb.backend.MockDynamoSchema
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
+import org.http4k.aws.AwsSdkClient
+import org.http4k.connect.amazon.dynamodb.DynamoTable
+import org.http4k.connect.amazon.dynamodb.FakeDynamoDb
+import org.http4k.connect.amazon.dynamodb.model.AttributeName
+import org.http4k.connect.amazon.dynamodb.model.GlobalSecondaryIndexResponse
+import org.http4k.connect.amazon.dynamodb.model.KeySchema
+import org.http4k.connect.amazon.dynamodb.model.KeyType
+import org.http4k.connect.amazon.dynamodb.model.Projection
+import org.http4k.connect.amazon.dynamodb.model.ProjectionType
+import org.http4k.connect.storage.InMemory
+import org.http4k.connect.storage.Storage
 import org.junit.jupiter.api.Test
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import java.time.Instant
 
 class CreateTableTest {
@@ -19,9 +29,16 @@ class CreateTableTest {
         @DynamoKtSecondarySortKey(indexNames = ["names"]) val dob: Instant
     )
 
-    private val backend = MockDynamoBackend()
+    private val storage = Storage.InMemory<DynamoTable>()
+
     private val personTable = DynamoDbEnhancedClient.builder()
-        .dynamoDbClient(MockDynamoDbV2(backend))
+        .dynamoDbClient(
+            DynamoDbClient.builder()
+                .httpClient(AwsSdkClient(FakeDynamoDb(storage)))
+                .credentialsProvider { AwsBasicCredentials.create("key", "id") }
+                .region(Region.CA_CENTRAL_1)
+                .build()
+        )
         .build()
         .table("people", DataClassTableSchema(Person::class))
 
@@ -29,29 +46,39 @@ class CreateTableTest {
     fun createTableWithIndices() {
         personTable.createTableWithIndices()
 
-        val backendTable = backend.getTable("people").shouldNotBeNull()
-        backendTable.globalIndices.shouldContainExactly(
-            MockDynamoSchema(
-                "names",
-                hashKey = MockDynamoAttribute(MockDynamoAttribute.Type.String, "name"),
-                rangeKey = MockDynamoAttribute(MockDynamoAttribute.Type.String, "dob")
+        val table = storage["people"].shouldNotBeNull().table
+
+        table.GlobalSecondaryIndexes.shouldContainExactlyInAnyOrder(
+                GlobalSecondaryIndexResponse(
+                    IndexName = "names",
+                    KeySchema = listOf(
+                        KeySchema(AttributeName.of("name"), KeyType.HASH),
+                        KeySchema(AttributeName.of("dob"), KeyType.RANGE)
+                    ),
+                    Projection = Projection(ProjectionType = ProjectionType.ALL)
+                )
             )
-        )
-        backendTable.localIndices.shouldBeEmpty()
+
+        table.LocalSecondaryIndexes.shouldBeNull()
     }
 
     @Test
     fun createTable() {
         personTable.createTable()
 
-        val backendTable = backend.getTable("people").shouldNotBeNull()
-        backendTable.globalIndices.shouldContainExactly(
-            MockDynamoSchema(
-                "names",
-                hashKey = MockDynamoAttribute(MockDynamoAttribute.Type.String, "name"),
-                rangeKey = MockDynamoAttribute(MockDynamoAttribute.Type.String, "dob")
+        val table = storage["people"].shouldNotBeNull().table
+
+        table.GlobalSecondaryIndexes.shouldContainExactlyInAnyOrder(
+            GlobalSecondaryIndexResponse(
+                IndexName = "names",
+                KeySchema = listOf(
+                    KeySchema(AttributeName.of("name"), KeyType.HASH),
+                    KeySchema(AttributeName.of("dob"), KeyType.RANGE)
+                ),
+                Projection = Projection(ProjectionType = ProjectionType.ALL)
             )
         )
-        backendTable.localIndices.shouldBeEmpty()
+
+        table.LocalSecondaryIndexes.shouldBeNull()
     }
 }

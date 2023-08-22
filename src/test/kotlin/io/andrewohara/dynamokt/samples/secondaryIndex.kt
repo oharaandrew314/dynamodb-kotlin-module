@@ -1,14 +1,18 @@
 package io.andrewohara.dynamokt.samples
 
-import io.andrewohara.awsmock.dynamodb.MockDynamoDbV2
 import io.andrewohara.dynamokt.*
 import io.kotest.matchers.collections.shouldContainExactly
+import org.http4k.aws.AwsSdkClient
+import org.http4k.connect.amazon.dynamodb.FakeDynamoDb
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
 import software.amazon.awssdk.enhanced.dynamodb.Key
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import java.time.Instant
 
 internal data class PersonById(
@@ -24,7 +28,13 @@ internal data class PersonById(
 
 class SecondaryIndexSample {
     private val table = DynamoDbEnhancedClient.builder()
-        .dynamoDbClient(MockDynamoDbV2())
+        .dynamoDbClient(
+            DynamoDbClient.builder()
+                .httpClient(AwsSdkClient(FakeDynamoDb()))
+                .credentialsProvider { AwsBasicCredentials.create("id", "secret") }
+                .region(Region.CA_CENTRAL_1)
+                .build()
+        )
         .build()
         .table("people", DataClassTableSchema(PersonById::class))
 
