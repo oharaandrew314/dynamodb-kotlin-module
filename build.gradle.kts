@@ -24,6 +24,10 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.6.2")
     testImplementation("org.http4k:http4k-aws:5.7.2.0")
     testImplementation("org.http4k:http4k-connect-amazon-dynamodb-fake:5.1.5.0")
+
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.19.0"))
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
 }
 
 tasks.test {
