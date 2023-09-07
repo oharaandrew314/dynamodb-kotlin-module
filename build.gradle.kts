@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.10"
     id("jacoco")
     id("maven-publish")
 }
@@ -19,15 +19,12 @@ dependencies {
     implementation(kotlin("reflect"))
 
     api("software.amazon.awssdk:dynamodb-enhanced:2.20.86+")
+    implementation("software.amazon.awssdk:aws-crt-client:2.20.86+")
 
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.6.2")
-    testImplementation("org.http4k:http4k-aws:5.7.2.0")
-    testImplementation("org.http4k:http4k-connect-amazon-dynamodb-fake:5.1.5.0")
-
-    testImplementation(platform("org.testcontainers:testcontainers-bom:1.19.0"))
-    testImplementation("org.testcontainers:testcontainers")
-    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.http4k:http4k-aws:5.8.0.0")
+    testImplementation("org.http4k:http4k-connect-amazon-dynamodb-fake:5.2.0.0")
 }
 
 tasks.test {

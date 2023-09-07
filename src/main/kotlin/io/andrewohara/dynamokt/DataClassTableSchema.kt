@@ -3,6 +3,8 @@ package io.andrewohara.dynamokt
 import software.amazon.awssdk.enhanced.dynamodb.EnhancedType
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException
+import java.lang.IllegalArgumentException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.*
 
@@ -21,7 +23,11 @@ class DataClassTableSchema<Item: Any>(dataClass: KClass<Item>): TableSchema<Item
             .mapNotNull { attr -> attributes[attr.attributeName]?.unConvert(attributeMap) }
             .toMap()
 
-        return constructor.callBy(arguments)
+        return try {
+            constructor.callBy(arguments)
+        } catch (e: Throwable) {
+            throw IllegalArgumentException("Could not map item to ${type.rawClass().simpleName}", e)
+        }
     }
 
     override fun itemToMap(item: Item, ignoreNulls: Boolean): Map<String, AttributeValue> {

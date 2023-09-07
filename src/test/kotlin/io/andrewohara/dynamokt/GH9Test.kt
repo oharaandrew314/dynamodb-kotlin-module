@@ -1,36 +1,30 @@
 package io.andrewohara.dynamokt
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import org.http4k.aws.AwsSdkAsyncClient
+import org.http4k.connect.amazon.dynamodb.FakeDynamoDb
 import org.junit.jupiter.api.Test
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient
 import software.amazon.awssdk.enhanced.dynamodb.Key
-import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest
 import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient
-import java.lang.reflect.InvocationTargetException
-import java.net.URI
+import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException
+import java.util.concurrent.ExecutionException
 
 private const val TABLE_NAME = "INSERT_NAME_OF_YOUR_TABLE_HERE"
 
-@Testcontainers
 class GH9Test {
 
-    @Container
-    val dynamo: GenericContainer<*> = GenericContainer(DockerImageName.parse("amazon/dynamodb-local:1.15.0"))
-        .withExposedPorts(8000)
-
     private val enhancedClient by lazy {
-        DynamoDbEnhancedClient.builder()
+        DynamoDbEnhancedAsyncClient.builder()
             .dynamoDbClient(
-                DynamoDbClient.builder()
-                    .endpointOverride(URI("http://localhost:${dynamo.getMappedPort(8000)}"))
+                DynamoDbAsyncClient.builder()
+                    .httpClient(AwsSdkAsyncClient(FakeDynamoDb()))
                     .credentialsProvider { AwsBasicCredentials.create("key", "id") }
                     .region(Region.CA_CENTRAL_1)
                     .build()
@@ -39,35 +33,56 @@ class GH9Test {
     }
 
     @Test
-    fun `update missing item`() {
+    fun `get item with wrong schema`() {
+        val legacyClient = enhancedClient
+            .table(TABLE_NAME, DataClassTableSchema(TestEntityV1::class))
+            .also { it.createTable().get() }
+
+        val entity1 = TestEntityV1(id = "valid", name = "valid name")
+        val entity2 = TestEntityV1(id = "invalid", name = null)
+
+        legacyClient.putItem(entity1).shouldNotBeNull().get()
+        legacyClient.putItem(entity2).shouldNotBeNull().get()
+
+        val newClient = enhancedClient
+            .table(TABLE_NAME, DataClassTableSchema(TestEntityV2::class))
+
+        shouldThrow<ExecutionException> {
+            newClient.getItem(Key.builder().partitionValue("invalid").build()).get()
+        }.cause.shouldBeInstanceOf<IllegalArgumentException>()
+    }
+
+    @Test
+    fun `get item from missing table`() {
         val testClient = enhancedClient
             .table(TABLE_NAME, DataClassTableSchema(TestEntityV1::class))
-            .also { it.createTable() }
 
-        val item = TestEntityV1(id = "test-id", name = null)
-        testClient.updateItem(item)
-
-        testClient.getItem(GetItemEnhancedRequest.builder()
-            .consistentRead(true)
-            .key(Key.builder().partitionValue("test-id").build())
-            .build()) shouldBe item
+        shouldThrow<ExecutionException> {
+            testClient.getItem(Key.builder().partitionValue("foo").build()).get()
+        }.cause.shouldBeInstanceOf<ResourceNotFoundException>()
     }
 
     @Test
     fun `mapping error on scan`() {
         val legacyClient = enhancedClient
             .table(TABLE_NAME, DataClassTableSchema(TestEntityV1::class))
-            .also { it.createTable() }
+            .also { it.createTable().get() }
 
-        legacyClient.putItem(TestEntityV1(id = "valid", name = "valid name")).shouldNotBeNull()
-        legacyClient.putItem(TestEntityV1(id = "invalid", name = null)).shouldNotBeNull()
+        val entity1 = TestEntityV1(id = "valid", name = "valid name")
+        val entity2 = TestEntityV1(id = "invalid", name = null)
+
+        legacyClient.putItem(entity1).shouldNotBeNull().get()
+        legacyClient.putItem(entity2).shouldNotBeNull().get()
 
         val newClient = enhancedClient
             .table(TABLE_NAME, DataClassTableSchema(TestEntityV2::class))
 
-        shouldThrow<InvocationTargetException> {
-            newClient.scan().count()
-        }
+        shouldThrow<ExecutionException> {
+            newClient.scan().subscribe {
+                it.items().shouldHaveSize(3)
+                it.items().shouldContainExactlyInAnyOrder(entity1, entity2)
+            }.get()
+        }.cause.shouldBeInstanceOf<IllegalArgumentException>()
     }
 }
 
