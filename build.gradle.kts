@@ -6,7 +6,6 @@ plugins {
 
 repositories {
     mavenCentral()
-
     maven { url = uri("https://jitpack.io") }
 }
 
@@ -15,11 +14,9 @@ kotlin {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("reflect"))
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.32")
 
     api("software.amazon.awssdk:dynamodb-enhanced:2.20.86+")
-    implementation("software.amazon.awssdk:aws-crt-client:2.20.86+")
 
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.6.2")
