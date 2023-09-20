@@ -9,12 +9,8 @@ repositories {
     maven { url = uri("https://jitpack.io") }
 }
 
-kotlin {
-    jvmToolchain(8)
-}
-
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.32")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     api("software.amazon.awssdk:dynamodb-enhanced:2.20.86+")
 
