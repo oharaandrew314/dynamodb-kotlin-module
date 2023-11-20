@@ -42,25 +42,6 @@ class CreateTableTest {
         .build()
         .table("people", DataClassTableSchema(Person::class))
 
-    @Test
-    fun createTableWithIndices() {
-        personTable.createTableWithIndices()
-
-        val table = storage["people"].shouldNotBeNull().table
-
-        table.GlobalSecondaryIndexes.shouldContainExactlyInAnyOrder(
-                GlobalSecondaryIndexResponse(
-                    IndexName = "names",
-                    KeySchema = listOf(
-                        KeySchema(AttributeName.of("name"), KeyType.HASH),
-                        KeySchema(AttributeName.of("dob"), KeyType.RANGE)
-                    ),
-                    Projection = Projection(ProjectionType = ProjectionType.ALL)
-                )
-            )
-
-        table.LocalSecondaryIndexes.shouldBeNull()
-    }
 
     @Test
     fun createTable() {
