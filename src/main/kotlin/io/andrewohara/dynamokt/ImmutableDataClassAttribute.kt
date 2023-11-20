@@ -50,16 +50,6 @@ private fun <Attr: Any?> initConverter(clazz: KClass<out AttributeConverter<Attr
         .call() as AttributeConverter<Attr>
 }
 
-fun KProperty1<out Any, *>.foo(): List<StaticAttributeTag> {
-    return getter.annotations.mapNotNull { annotation ->
-        val tagAnnotation =
-            annotation.annotationClass.findAnnotation<BeanTableSchemaAttributeTag>() ?: return@mapNotNull null
-        val generator = tagAnnotation.value.staticFunctions.find { it.name == "attributeTagFor" }
-            ?: error("static attributeTagFor function required for ${tagAnnotation::class.simpleName}")
-        generator.call(annotation) as StaticAttributeTag
-    }
-}
-
 private fun KProperty1<out Any, *>.tags() = buildList {
     for (annotation in annotations) {
         when(annotation) {
