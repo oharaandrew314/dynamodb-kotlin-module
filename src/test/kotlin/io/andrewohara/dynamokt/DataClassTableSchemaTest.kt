@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 import java.nio.ByteBuffer
 
 class DataClassTableSchemaTest {
@@ -98,5 +99,21 @@ class DataClassTableSchemaTest {
         shouldThrow<IllegalArgumentException> {
             DataClassTableSchema(Person::class)
         }
+    }
+
+    @Test
+    fun `non-data class throws error`() {
+        shouldThrow<IllegalArgumentException> {
+            DataClassTableSchema(String::class)
+        }.message shouldBe "class kotlin.String must be a data class"
+    }
+
+    @Test
+    fun `data class with private constructor`() {
+        data class Person private constructor(val name: String)
+
+        shouldThrow<IllegalStateException> {
+            DataClassTableSchema(Person::class)
+        }.message shouldBe "Person must have a public primary constructor"
     }
 }
