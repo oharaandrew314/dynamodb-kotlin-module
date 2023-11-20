@@ -38,7 +38,7 @@ class DataClassTableSchemaTest {
     fun `item to map - don't ignore nulls`() {
         val instance = TestItem("troll", 9001)
 
-        schema.itemToMap(instance, ignoreNulls = false) shouldBe mapOf(
+        schema.itemToMap(instance, false) shouldBe mapOf(
             "foo" to AttributeValue.builder().s("troll").build(),
             "bar" to AttributeValue.builder().n("9001").build(),
             "baz" to AttributeValue.builder().nul(true).build()
@@ -49,7 +49,7 @@ class DataClassTableSchemaTest {
     fun `item to map - ignore nulls`() {
         val instance = TestItem("troll", 9001)
 
-        schema.itemToMap(instance, ignoreNulls = true) shouldBe mapOf(
+        schema.itemToMap(instance, true) shouldBe mapOf(
             "foo" to AttributeValue.builder().s("troll").build(),
             "bar" to AttributeValue.builder().n("9001").build(),
         )

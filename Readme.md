@@ -65,6 +65,23 @@ data class Appointment(
 )
 ```
 
+## Support for Extensions
+
+Bean table extensions are supported.  Register the extension to the client like normal,
+and then add the `DynamoDbBean` extension annotation to the getter of the property.
+
+```kotlin
+data class Post(
+    @DynamoKtPartitionKey
+    val id: UUID,
+    
+    val title: String,
+    
+    @get:DynamoDbVersionAttribute  // add extension annotation to the getter  (ie get:<annotation>)
+    val version: Int
+)
+```
+
 ## Samples
 
 See the [Samples](/src/test/kotlin/io/andrewohara/dynamokt/samples)
