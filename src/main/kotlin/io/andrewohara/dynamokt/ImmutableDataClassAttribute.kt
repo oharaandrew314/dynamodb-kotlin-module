@@ -3,6 +3,7 @@ package io.andrewohara.dynamokt
 import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter
 import software.amazon.awssdk.enhanced.dynamodb.AttributeConverterProvider
 import software.amazon.awssdk.enhanced.dynamodb.EnhancedType
+import software.amazon.awssdk.enhanced.dynamodb.internal.mapper.MetaTableSchemaCache
 import software.amazon.awssdk.enhanced.dynamodb.mapper.ImmutableAttribute
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTag
 import software.amazon.awssdk.enhanced.dynamodb.mapper.StaticAttributeTags
@@ -15,23 +16,23 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.staticFunctions
 import kotlin.reflect.jvm.javaType
 
-private fun KType.toEnhancedType(): EnhancedType<out Any> {
+private fun KType.toEnhancedType(schemaCache: MetaTableSchemaCache): EnhancedType<out Any> {
     return when(val clazz = classifier as KClass<Any>) {
         List::class -> {
-            val listType = arguments.first().type!!.toEnhancedType()
+            val listType = arguments.first().type!!.toEnhancedType(schemaCache)
             EnhancedType.listOf(listType)
         }
         Set::class -> {
-            val setType = arguments.first().type!!.toEnhancedType()
+            val setType = arguments.first().type!!.toEnhancedType(schemaCache)
             EnhancedType.setOf(setType)
         }
         Map::class -> {
-            val (key, value) = arguments.map { it.type!!.toEnhancedType() }
+            val (key, value) = arguments.map { it.type!!.toEnhancedType(schemaCache) }
             EnhancedType.mapOf(key, value)
         }
         else -> {
             if (clazz.isData) {
-                EnhancedType.documentOf(clazz.java, DataClassTableSchema(clazz))
+                EnhancedType.documentOf(clazz.java, recursiveDataClassTableSchema(clazz, schemaCache))
             } else {
                 EnhancedType.of(javaType)
             }
@@ -70,17 +71,24 @@ private fun KProperty1<out Any, *>.tags() = buildList {
     }
 }
 
-internal fun <Table: Any, Attr: Any?> KProperty1<Table, Attr>.toImmutableDataClassAttribute(dataClass: KClass<Table>): ImmutableAttribute<Table, ImmutableDataClassBuilder, Attr> {
+internal fun <Table: Any, Attr: Any?> KProperty1<Table, Attr>.toImmutableDataClassAttribute(
+    dataClass: KClass<Table>,
+    schemaCache: MetaTableSchemaCache
+): ImmutableAttribute<Table, ImmutableDataClassBuilder, Attr> {
     val converter = findAnnotation<DynamoKtConverted>()
         ?.converter
         ?.let { it as KClass<AttributeConverter<Attr>> }
         ?.let { initConverter(it) }
-        ?: AttributeConverterProvider.defaultProvider().converterFor(returnType.toEnhancedType())
+        ?: AttributeConverterProvider.defaultProvider().converterFor(returnType.toEnhancedType(schemaCache))
 
     val dynamoName = findAnnotation<DynamoKtAttribute>()?.name?: name
 
     return ImmutableAttribute
-        .builder(EnhancedType.of(dataClass.java), EnhancedType.of(ImmutableDataClassBuilder::class.java), returnType.toEnhancedType() as EnhancedType<Attr>)
+        .builder(
+            EnhancedType.of(dataClass.java),
+            EnhancedType.of(ImmutableDataClassBuilder::class.java),
+            returnType.toEnhancedType(schemaCache) as EnhancedType<Attr>
+        )
         .name(dynamoName)
         .getter(::get)
         .setter { builder, value -> builder[name] = value }

@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.core.SdkBytes
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
@@ -115,5 +116,20 @@ class DataClassTableSchemaTest {
         shouldThrow<IllegalStateException> {
             DataClassTableSchema(Person::class)
         }.message shouldBe "Person must have a public primary constructor"
+    }
+
+    @Test
+    fun `recursive model`() {
+        data class Item(val id: Int, val inner: Item?)
+
+        val item = Item(1, Item(2, null))
+
+        DataClassTableSchema(Item::class).itemToMap(item, true) shouldBe mapOf(
+            "id" to AttributeValue.fromN("1"),
+            "inner" to AttributeValue.fromM(mapOf(
+                "id" to AttributeValue.fromN("2"),
+                "inner" to AttributeValue.fromNul(true)
+            ))
+        )
     }
 }
