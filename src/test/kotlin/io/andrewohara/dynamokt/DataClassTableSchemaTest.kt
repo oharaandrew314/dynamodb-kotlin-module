@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.core.SdkBytes
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
@@ -19,7 +18,14 @@ class DataClassTableSchemaTest {
         @DynamoKtAttribute("baz") val third: ByteBuffer? = null
     )
 
+    data class OuterTestItem(
+        val bang: String,
+        @DynamoKtFlatten
+        val inner: TestItem
+    )
+
     private val schema = DataClassTableSchema(TestItem::class)
+    private val outerSchema = DataClassTableSchema(OuterTestItem::class)
 
     @Test
     fun `attribute names`() {
@@ -68,6 +74,20 @@ class DataClassTableSchemaTest {
     }
 
     @Test
+    fun `item to map - flatten`() {
+        val instance = OuterTestItem(
+            bang = "BANG",
+            inner = TestItem("troll", 9001)
+        )
+
+        outerSchema.itemToMap(instance, true) shouldBe mapOf(
+            "foo" to AttributeValue.fromS("troll"),
+            "bar" to AttributeValue.fromN("9001"),
+            "bang" to AttributeValue.fromS("BANG")
+        )
+    }
+
+    @Test
     fun `map to item`() {
         val map = mapOf(
             "foo" to AttributeValue.builder().s("troll").build(),
@@ -76,6 +96,20 @@ class DataClassTableSchemaTest {
         )
 
         schema.mapToItem(map) shouldBe TestItem("troll", 9001, ByteBuffer.wrap("lolcats".toByteArray()))
+    }
+
+    @Test
+    fun `map to item - flatten`() {
+        val map = mapOf(
+            "foo" to AttributeValue.fromS("troll"),
+            "bar" to AttributeValue.fromN("9001"),
+            "bang" to AttributeValue.fromS("BANG")
+        )
+
+        outerSchema.mapToItem(map) shouldBe OuterTestItem(
+            bang = "BANG",
+            inner = TestItem("troll", 9001)
+        )
     }
 
     @Test

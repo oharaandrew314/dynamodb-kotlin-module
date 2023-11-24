@@ -20,3 +20,6 @@ annotation class DynamoKtSecondarySortKey(val indexNames: Array<String>)
 
 @Target(AnnotationTarget.PROPERTY)
 annotation class DynamoKtAttribute(val name: String)
+
+@Target(AnnotationTarget.PROPERTY)
+annotation class DynamoKtFlatten
