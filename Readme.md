@@ -46,8 +46,6 @@ cats.putItem(Cat("Toggles"))
 The schema uses a new set of property-friendly annotations.
 
 ```kotlin
-data class Metadata(val created: Instant, val refereceNumber: Int)
-
 data class Appointment(
     @DynamoKtPartitionKey  // partition key for main index
     @DynamoKtAttribute(name = "owner_id")  // optionally rename the attribute
@@ -68,6 +66,10 @@ data class Appointment(
     @DynamoKtFlatten // flatten properties of annotated class with this document    
     val metadata: Metadata
 )
+
+// If an instance of this type is empty, don't coerce it to null
+@DynamoKtPreserveEmptyObject
+data class Metadata(val created: Instant?, val refereceNumber: Int?)
 ```
 
 ## Support for Extensions

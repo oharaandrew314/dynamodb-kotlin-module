@@ -23,3 +23,6 @@ annotation class DynamoKtAttribute(val name: String)
 
 @Target(AnnotationTarget.PROPERTY)
 annotation class DynamoKtFlatten
+
+@Target(AnnotationTarget.CLASS)
+annotation class DynamoKtPreserveEmptyObject

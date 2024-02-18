@@ -32,7 +32,11 @@ private fun KType.toEnhancedType(schemaCache: MetaTableSchemaCache): EnhancedTyp
         }
         else -> {
             if (clazz.isData) {
-                EnhancedType.documentOf(clazz.java, recursiveDataClassTableSchema(clazz, schemaCache))
+                EnhancedType.documentOf(clazz.java, recursiveDataClassTableSchema(clazz, schemaCache)) {
+                    if (clazz.findAnnotation<DynamoKtPreserveEmptyObject>() != null) {
+                        it.preserveEmptyObject(true)
+                    }
+                }
             } else {
                 EnhancedType.of(javaType)
             }
