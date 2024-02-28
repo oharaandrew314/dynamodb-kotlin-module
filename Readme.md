@@ -89,6 +89,13 @@ data class Post(
 )
 ```
 
+## Gotchas
+
+The `DynamoDbAsyncClient.createTable` method does not create the indices your table definition might have defined.
+This is unlike the `DynamoDbClient`, which, in recent versions of the AWS SDK, performs as you would expect.
+
+To work around this, `DynamoKt` offers a `createTableWithIndices` extension method to provide the expected behaviour.
+
 ## Samples
 
 See the [Samples](/src/test/kotlin/io/andrewohara/dynamokt/samples)
