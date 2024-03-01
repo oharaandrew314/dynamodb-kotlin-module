@@ -1,10 +1,15 @@
 package io.andrewohara.dynamokt
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.core.SdkBytes
+import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter
+import software.amazon.awssdk.enhanced.dynamodb.AttributeValueType
+import software.amazon.awssdk.enhanced.dynamodb.EnhancedType
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
@@ -165,5 +170,45 @@ class DataClassTableSchemaTest {
                 "inner" to AttributeValue.fromNul(true)
             ))
         )
+    }
+
+    data class Subtype(
+        val map: Map<String, Any>
+    )
+
+    class SubtypeConverter: AttributeConverter<Subtype> {
+        private val jackson = jacksonObjectMapper()
+
+        override fun transformFrom(input: Subtype): AttributeValue = AttributeValue.fromS(jackson.writeValueAsString(input.map))
+        override fun transformTo(input: AttributeValue) = Subtype(
+            map = jackson.readValue(input.s())
+        )
+        override fun type(): EnhancedType<Subtype> = EnhancedType.of(Subtype::class.java)
+        override fun attributeValueType() = AttributeValueType.S
+    }
+
+    @Test
+    fun `custom converter for data class`() {
+        data class CustomDataClass(
+            @DynamoKtPartitionKey
+            val id: String,
+            @DynamoKtConverted(SubtypeConverter::class)
+            val subtype: Subtype
+        )
+
+        val schema = DataClassTableSchema(CustomDataClass::class)
+
+        val item = CustomDataClass(
+            id = "foo",
+            subtype = Subtype(mapOf("foo" to "bar", "num" to 1))
+        )
+
+        val map = mapOf(
+            "id" to AttributeValue.fromS("foo"),
+            "subtype" to AttributeValue.fromS("""{"foo":"bar","num":1}""")
+        )
+
+        schema.itemToMap(item, true) shouldBe map
+        schema.mapToItem(map) shouldBe item
     }
 }
