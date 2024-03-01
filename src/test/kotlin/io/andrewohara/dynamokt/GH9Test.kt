@@ -4,6 +4,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.http4k.aws.AwsSdkAsyncClient
 import org.http4k.connect.amazon.dynamodb.FakeDynamoDb
@@ -83,6 +84,16 @@ class GH9Test {
                 it.items().shouldContainExactlyInAnyOrder(entity1, entity2)
             }.get()
         }.cause.shouldBeInstanceOf<IllegalArgumentException>()
+    }
+
+    @Test
+    fun `update missing item`() {
+        val testClient = enhancedClient
+            .table(TABLE_NAME, DataClassTableSchema(TestEntityV1::class))
+            .also { it.createTable().get() }
+
+        val item = TestEntityV1("id1", "foo")
+        testClient.updateItem(item).get() shouldBe item
     }
 }
 
