@@ -84,19 +84,18 @@ internal fun <Table: Any, Attr: Any?> KProperty1<Table, Attr>.toImmutableDataCla
         ?.let { it as KClass<AttributeConverter<Attr>> }
         ?.let { initConverter(it) }
         ?: AttributeConverterProvider.defaultProvider().converterFor(returnType.toEnhancedType(schemaCache))
-
-    val dynamoName = findAnnotation<DynamoKtAttribute>()?.name?: name
+        as AttributeConverter<Attr>
 
     return ImmutableAttribute
         .builder(
             EnhancedType.of(dataClass.java),
             EnhancedType.of(ImmutableDataClassBuilder::class.java),
-            converter.type() as EnhancedType<Attr>
+            converter.type()
         )
-        .name(dynamoName)
+        .name(findAnnotation<DynamoKtAttribute>()?.name?: name)
         .getter(::get)
         .setter { builder, value -> builder[name] = value }
-        .attributeConverter(converter as AttributeConverter<Attr>)
+        .attributeConverter(converter)
         .tags(tags())
         .build()
 }
