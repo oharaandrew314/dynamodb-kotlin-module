@@ -1,4 +1,3 @@
-import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.SonatypeHost
 import com.vanniktech.maven.publish.KotlinJvm
 
@@ -15,7 +14,7 @@ repositories {
 dependencies {
     implementation(kotlin("reflect"))
 
-    api("software.amazon.awssdk:dynamodb-enhanced:2.21.26+")
+    api("software.amazon.awssdk:dynamodb-enhanced:2.21.26")
 
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.6.2")
