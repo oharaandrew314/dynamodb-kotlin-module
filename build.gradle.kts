@@ -35,7 +35,7 @@ tasks.jacocoTestReport {
 }
 
 mavenPublishing {
-    configure(KotlinJvm(JavadocJar.None(), true))
+    configure(KotlinJvm(sourcesJar = true))
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
     signAllPublications()
     coordinates("dev.andrewohara", "dynamokt", "1.0.0")
