@@ -1,6 +1,6 @@
 [![codecov](https://codecov.io/gh/oharaandrew314/dynamodb-kotlin-module/branch/master/graph/badge.svg)](https://codecov.io/gh/oharaandrew314/dynamodb-kotlin-module)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Maven Central Version](https://img.shields.io/maven-central/v/dev.andrewohara/dynamokt)
+[![Maven Central Version](https://img.shields.io/maven-central/v/dev.andrewohara/dynamokt)](https://central.sonatype.com/artifact/dev.andrewohara/dynamokt)
 
 
 # DynamoDb Kotlin Module
