@@ -4,7 +4,8 @@
 
 # DynamoDb Kotlin Module
 
-[!WARNING] During the move to Maven Central, the package prefix has changed from `io.andrewohara` to `dev.andrewohara`
+> **WARNING**
+> During the move to Maven Central, the package prefix has changed from `io.andrewohara` to `dev.andrewohara`
 
 Kotlin Module for the v2 dynamodb-enhanced SDK.
 
