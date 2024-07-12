@@ -1,4 +1,4 @@
-package io.andrewohara.dynamokt
+package dev.andrewohara.dynamokt
 
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test

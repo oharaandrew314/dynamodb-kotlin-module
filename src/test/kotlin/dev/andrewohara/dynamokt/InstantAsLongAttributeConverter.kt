@@ -1,4 +1,4 @@
-package io.andrewohara.dynamokt
+package dev.andrewohara.dynamokt
 
 import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter
 import software.amazon.awssdk.enhanced.dynamodb.AttributeValueType

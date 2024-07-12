@@ -1,4 +1,4 @@
-package io.andrewohara.dynamokt
+package dev.andrewohara.dynamokt
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

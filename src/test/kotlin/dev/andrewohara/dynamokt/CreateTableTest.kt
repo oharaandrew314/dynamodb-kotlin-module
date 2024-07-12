@@ -1,4 +1,4 @@
-package io.andrewohara.dynamokt
+package dev.andrewohara.dynamokt
 
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull

@@ -1,5 +1,7 @@
 [![codecov](https://codecov.io/gh/oharaandrew314/dynamodb-kotlin-module/branch/master/graph/badge.svg)](https://codecov.io/gh/oharaandrew314/dynamodb-kotlin-module)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![Maven Central Version](https://img.shields.io/maven-central/v/dev.andrewohara/dynamokt)
+
 
 # DynamoDb Kotlin Module
 
@@ -12,12 +14,6 @@ This module provides a new `TableSchema` implementation that adds support for ko
 - properties can be immutable; i.e. `val` is allowed
 - properties don't need default values
 - new annotations work directly on kotlin properties, rather than their getters
-
-## Install
-
-[![](https://jitpack.io/v/oharaandrew314/dynamodb-kotlin-module.svg)](https://jitpack.io/#oharaandrew314/dynamodb-kotlin-module)
-
-Follow the instructions on Jitpack.
 
 ## Requirements
 
@@ -98,4 +94,4 @@ To work around this, `DynamoKt` offers a `createTableWithIndices` extension meth
 
 ## Samples
 
-See the [Samples](/src/test/kotlin/io/andrewohara/dynamokt/samples)
+See the [Samples](/src/test/kotlin/dev/andrewohara/dynamokt/samples)

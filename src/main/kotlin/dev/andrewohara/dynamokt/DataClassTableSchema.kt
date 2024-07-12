@@ -1,4 +1,4 @@
-package io.andrewohara.dynamokt
+package dev.andrewohara.dynamokt
 
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema
 import software.amazon.awssdk.enhanced.dynamodb.internal.mapper.MetaTableSchemaCache

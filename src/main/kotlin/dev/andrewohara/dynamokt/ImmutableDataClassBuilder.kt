@@ -1,4 +1,4 @@
-package io.andrewohara.dynamokt
+package dev.andrewohara.dynamokt
 
 import java.lang.IllegalArgumentException
 import kotlin.reflect.KFunction

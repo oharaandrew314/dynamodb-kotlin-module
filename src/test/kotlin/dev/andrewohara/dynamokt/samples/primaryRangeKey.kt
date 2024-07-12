@@ -1,8 +1,8 @@
-package io.andrewohara.dynamokt.samples
+package dev.andrewohara.dynamokt.samples
 
-import io.andrewohara.dynamokt.DataClassTableSchema
-import io.andrewohara.dynamokt.DynamoKtPartitionKey
-import io.andrewohara.dynamokt.DynamoKtSortKey
+import dev.andrewohara.dynamokt.DataClassTableSchema
+import dev.andrewohara.dynamokt.DynamoKtPartitionKey
+import dev.andrewohara.dynamokt.DynamoKtSortKey
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import org.http4k.aws.AwsSdkClient

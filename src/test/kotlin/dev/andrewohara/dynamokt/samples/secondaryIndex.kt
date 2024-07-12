@@ -1,6 +1,6 @@
-package io.andrewohara.dynamokt.samples
+package dev.andrewohara.dynamokt.samples
 
-import io.andrewohara.dynamokt.*
+import dev.andrewohara.dynamokt.*
 import io.kotest.matchers.collections.shouldContainExactly
 import org.http4k.aws.AwsSdkClient
 import org.http4k.connect.amazon.dynamodb.FakeDynamoDb
