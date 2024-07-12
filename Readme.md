@@ -2,8 +2,9 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Maven Central Version](https://img.shields.io/maven-central/v/dev.andrewohara/dynamokt)](https://central.sonatype.com/artifact/dev.andrewohara/dynamokt)
 
-
 # DynamoDb Kotlin Module
+
+[!WARNING] During the move to Maven Central, the package prefix has changed from `io.andrewohara` to `dev.andrewohara`
 
 Kotlin Module for the v2 dynamodb-enhanced SDK.
 
@@ -17,7 +18,7 @@ This module provides a new `TableSchema` implementation that adds support for ko
 
 ## Requirements
 
-Minimum Java 8.  However, only 11 and 17 are officially supported.
+Java 11, 17, and 21 are officially supported.
 
 ## Quickstart
 
